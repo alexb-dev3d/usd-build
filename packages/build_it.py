@@ -1,11 +1,13 @@
 import os, sys
 from git import Repo
-#import logging
 import requests
 import zipfile
 import shutil
+import subprocess
+from typing import Dict
 from json_helper import read_json
 from logging_helper import setup_logger
+from os_helpers import set_directory
 
 DOWNLOAD_DIR=os.environ.get("DOWNLOAD_DIR","dependencies")
 BUILD_DIR=os.environ.get("BUILD_DIR","build")
@@ -60,6 +62,24 @@ def pull_zip(zip_url: str, out_path: str, force_pull: bool = False, force_unzip:
         return False
     return True
 
+def run_build_script(out_path: str, config_data: Dict) -> None:
+
+    logger.info("Starting build script")
+    usd_root = os.path.join(os.path.abspath(os.curdir),DOWNLOAD_DIR,out_path)
+    build_dir = os.path.join(os.path.abspath(os.curdir),BUILD_DIR,out_path)
+    build_script_path = os.path.join("build_scripts","build_usd.py")
+    
+    cmd = [
+        "python",
+        build_script_path,
+        *config_data.get("build_options",[]),
+        build_dir
+    ]
+    logger.info(f"Build cmd: {' '.join(cmd)}")
+
+    with set_directory(usd_root):
+        subprocess.run(cmd)
+
 if __name__=="__main__":
     print(sys.argv[0], os.path.abspath(os.curdir))
     config_file = sys.argv[1]
@@ -67,4 +87,9 @@ if __name__=="__main__":
     logger.info(f"Starting Usd Build for version {config_data['usd_version_tag']}")
     version_tag = config_data["usd_version_tag"]
     # pull_repo(config_data["usd_url"], f"OpenUsd{version_tag}", version_tag)
-    pull_zip(config_data["usd_url"], f"OpenUsd-{version_tag}", force_unzip = True)
+    out_dir_name = f"OpenUsd-{version_tag}"
+    if not pull_zip(config_data["usd_url"], out_dir_name, force_unzip = False):
+        logger.error("Failed pulling dependencies")
+        exit(0)
+
+    run_build_script(out_dir_name, config_data)
