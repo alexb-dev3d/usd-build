@@ -28,7 +28,7 @@
         "--onetbb"        
     ],
     "build_args": {
-        "--build-variant": "relWithdebuginfo",
+        "--build-variant": "relwithdebuginfo",
         "--generator" : ""
     }
 }
