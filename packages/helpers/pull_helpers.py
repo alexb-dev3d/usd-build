@@ -60,15 +60,14 @@ def pull_package(package_config: PackageConfig, pull_dir: os.PathLike) -> bool:
     package_name = package_config.name
     logger.info(f"Pulling package: {package_name}")
     try:
-        version_tag = package_config.version_tag(package_name)
+        version_tag = package_config.version_tag
         # pkg_name hold the alternate name if any
-        pkg_name = package_config.name(package_name)
 
         logger.info(f"Creating pull directory {pull_dir}")
         os.makedirs(pull_dir, exist_ok=True)
-        _pull_dir = os.path.abspath(os.path.join(pull_dir,pkg_name))
+        _pull_dir = os.path.abspath(os.path.join(pull_dir,package_name))
 
-        url = config_helper.package_url(package_name)
+        url = package_config.url
         
         if url.endswith(".git"):
             return pull_repo(url, package_name, version_tag, _pull_dir)
