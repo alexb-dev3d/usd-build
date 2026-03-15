@@ -1,5 +1,6 @@
 import os, sys
 import subprocess
+from argparse import Namespace
 from typing import Dict
 from helpers.config_helpers import ConfigHelper
 from helpers.logging_helpers import setup_logger
@@ -41,21 +42,27 @@ def run_build_script(out_path: str, config_data: Dict, install_dir: os.PathLike)
     with set_directory(usd_root):
         subprocess.run(cmd)
 
+def parse_arguments() ->Namespace:
+    import argparse
+    parser = argparse.ArgumentParser(description="Build script for packages and its dependencies")
+    parser.add_argument("--config", help="Path to the config file", required = True)
+    parser.add_argument("--pull_dir", help="Path to the pull directory", default = r"..\3rd_parties\pull")
+    parser.add_argument("--install_dir", help="Path to the install directory", default = r"..\3rd_parties")
+    return parser.parse_args(sys.argv[1:])
 
-if __name__=="__main__":
-    print(sys.argv[0], os.path.abspath(os.curdir))
-    config_file = sys.argv[1]
-    install_dir = sys.argv[2]
 
-    config_helper = ConfigHelper(config_file)
-
-    if not pull_package(config_helper, "usd"):
+def pull_package(config, package_name, args):
+    logger.info(f"Pulling package: {package_name}")
+    print("args", args)
+    pull_dir = args.pull_dir
+    if not pull_package(config, package_name, pull_dir):
         logger.error("Failed pulling dependencies")
         exit(0)
 
-    logger.info(f"Starting Usd Build for version {config_data['usd_version_tag']}")
+
+    version_tag = config_data.package_version_tag(package_name)
+    logger.info(f"Starting Usd Build for version {version_tag}")
     logger.info(f"Will install in: {install_dir}")
-    version_tag = config_data["usd_version_tag"]
     # pull_repo(config_data["usd_url"], f"OpenUsd{version_tag}", version_tag)
     out_dir_name = f"OpenUsd-{version_tag}"
     if not pull_zip(config_data["usd_url"], out_dir_name, force_unzip = False):
@@ -64,3 +71,13 @@ if __name__=="__main__":
 
     install_dir = os.path.join(install_dir, out_dir_name)
     run_build_script(out_dir_name, config_data, install_dir)
+
+if __name__=="__main__":
+    args = parse_arguments()
+    
+    config = ConfigHelper(args.config)
+
+    logger.info(f"Building packages {config.packages()}")
+    for package in config.packages():
+        pull_package(config, package, args)
+

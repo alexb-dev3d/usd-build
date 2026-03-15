@@ -36,3 +36,9 @@ class ConfigHelper:
     
     def package_version_tag(self, package_name: str) -> str:
         return self.config_data[package_name]["version_tag"]
+
+    def package_name(self, package_name: str) -> str:
+        """
+        return the name if specified in the packagge config, otherwise return the package name as is
+        """
+        return self.config_data[package_name].get("name", package_name)

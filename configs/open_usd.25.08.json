@@ -1,9 +1,12 @@
 {
     "usd" : {
+        "name" : "OpenUsd-25.05",
         "version" : "25.05.01",
         "version_tag" : "25.05.01",
         // "usd_url" : "https://github.com/PixarAnimationStudios/OpenUSD.git"
         "url" : "https://github.com/PixarAnimationStudios/OpenUSD/archive/refs/tags/v25.05.01.zip",
+
+        "build_script" : "build_scripts/build_usd.py",
 
         "build_options" : [
             "--tutorials",
