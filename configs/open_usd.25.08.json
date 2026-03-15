@@ -8,33 +8,40 @@
 
         "build_script" : "build_scripts/build_usd.py",
 
-        "build_options" : [
-            "--tutorials",
-            "--build-shared",
-            "--examples",
-            "--tutorials",
-            "--tools",
-            "--python",
-            "--usdValidation",
-            "--usd-imaging",
-            // "--imaging"
-            "--openvdb",
-            "--usdview",
-            "--zlib",
+        "build_args": [
 
-            // "--vulkan",
-            "--openimageio",
-            "--opencolorio",
-            "--alembic",
-            "--hdf5",
-            // "--draco"
+            { "--build-variant": "relwithdebuginfo"},
 
-            "--materialx",
-            "--onetbb"        
-        ],
-        "build_args": {
-            "--build-variant": "relwithdebuginfo",
-            "--generator" : ""
-        }
+            // build options
+            [
+                "--tutorials",
+                "--build-shared",
+                "--examples",
+                "--tutorials",
+                "--tools",
+                "--python",
+                "--usdValidation",
+                "--usd-imaging",
+                // "--imaging"
+                "--openvdb",
+                "--usdview",
+                "--zlib",
+
+                // "--vulkan",
+                "--openimageio",
+                "--opencolorio",
+                "--alembic",
+                "--hdf5",
+                // "--draco"
+
+                "--materialx",
+                "--onetbb"        
+            ]
+            // "build_args": {
+                
+            //     "-G" : "\"Visual Studio 18 2026\"",
+            //     "-A" : "x64"
+            // }
+        ]
     }
 }

@@ -1,6 +1,6 @@
 
 import os
-from typing import Dict
+from typing import List
 import subprocess
 from .logging_helpers import setup_logger
 from .config_helpers import PackageConfig
@@ -8,6 +8,23 @@ from .os_helpers import set_directory
 from pprint import pprint
 
 logger = setup_logger(__name__)
+
+def parse_build_args(param) -> List:
+    
+    if isinstance(param, (str,int,float)):
+        return [str(param)]
+    
+    if isinstance(param, dict):
+        build_args = []
+        for k, v in param.items():
+            build_args.append(k)
+            build_args.extend(parse_build_args(v))
+        return build_args
+
+    if isinstance(param,list):
+        return param
+
+    raise Exception(f"Unsupported type for build arg: {type(param)}")
 
 def run_build_script(
         package_config: PackageConfig,
@@ -23,17 +40,13 @@ def run_build_script(
 
     build_args = []
 
-    for k, v in package_config.build_args.items():
-        build_args.append(k)
-        build_args.append(v)
+    for param in package_config.build_args:
+        build_args.extend(parse_build_args(param))
 
     cmd = [
         "python",
         package_config.build_script,
-        "--inst", install_dir,
-        *package_config.build_options,
-        *build_args,
-        build_dir
+        *build_args
     ]
     pprint(cmd)
     logger.info(f"Build cmd: {' '.join(cmd)}")
