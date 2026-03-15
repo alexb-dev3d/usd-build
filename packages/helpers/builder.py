@@ -1,6 +1,7 @@
 
 import os
 from typing import Dict
+import subprocess
 from .logging_helpers import setup_logger
 from .config_helpers import PackageConfig
 from .os_helpers import set_directory
@@ -30,7 +31,7 @@ def run_build_script(
         "python",
         package_config.build_script,
         "--inst", install_dir,
-        package_config.build_options,
+        *package_config.build_options,
         *build_args,
         build_dir
     ]

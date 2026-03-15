@@ -39,7 +39,7 @@ def build_package(package_config, args):
     source_dir = os.path.join(args.pull_dir, package_config.name)
     build_dir = os.path.join(args.build_dir, package_config.name)
     install_dir = os.path.join(args.install_dir, package_config.name)
-    # run_build_script(package_config, source_dir, build_dir, install_dir)
+    run_build_script(package_config, source_dir, build_dir, install_dir)
 
 if __name__=="__main__":
     args = parse_arguments()
