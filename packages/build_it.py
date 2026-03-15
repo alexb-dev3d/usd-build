@@ -1,10 +1,9 @@
 import os, sys
-import subprocess
 from argparse import Namespace
 from typing import Dict
 from helpers.config_helpers import ConfigHelper
 from helpers.logging_helpers import setup_logger
-from helpers.os_helpers import set_directory
+from helpers.builder import run_build_script
 import helpers.pull_helpers as p_helper
 
 DOWNLOAD_DIR=os.environ.get("DOWNLOAD_DIR","dependencies")
@@ -20,6 +19,7 @@ def parse_arguments() ->Namespace:
     parser = argparse.ArgumentParser(description="Build script for packages and its dependencies")
     parser.add_argument("--config", help="Path to the config file", required = True)
     parser.add_argument("--pull_dir", help="Path to the pull directory", default = r"..\3rd_parties\pull")
+    parser.add_argument("--build_dir", help="Path to the pull directory", default = r"..\3rd_parties\build")
     parser.add_argument("--install_dir", help="Path to the install directory", default = r"..\3rd_parties")
     return parser.parse_args(sys.argv[1:])
 
@@ -36,7 +36,10 @@ def pull_package(package_config, args):
 def build_package(package_config, args):
     version_tag = package_config.version_tag
 
-    run_build_script(out_dir_name, config_data, install_dir)
+    source_dir = os.path.join(args.pull_dir, package_config.name)
+    build_dir = os.path.join(args.build_dir, package_config.name)
+    install_dir = os.path.join(args.install_dir, package_config.name)
+    # run_build_script(package_config, source_dir, build_dir, install_dir)
 
 if __name__=="__main__":
     args = parse_arguments()
@@ -47,4 +50,5 @@ if __name__=="__main__":
     for package in config.packages():
         package_config = config.package_class(package)
         pull_package(package_config, args)
+        build_package(package_config, args)
 
