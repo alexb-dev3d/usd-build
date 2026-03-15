@@ -79,5 +79,7 @@ if __name__=="__main__":
 
     logger.info(f"Building packages {config.packages()}")
     for package in config.packages():
+        package_config = config.package_class(package)
+        print( package_config)
         pull_package(config, package, args)
 

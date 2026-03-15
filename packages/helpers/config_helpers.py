@@ -1,5 +1,6 @@
 import json
 import re
+import dataclasses
 from os import PathLike
 from typing import Dict
 
@@ -42,3 +43,13 @@ class ConfigHelper:
         return the name if specified in the packagge config, otherwise return the package name as is
         """
         return self.config_data[package_name].get("name", package_name)
+    
+    def package_class(self, package_name: str) -> str:
+
+        attrs = []
+        #[ (name, str, val) for name, val in self.config_data[package_name].items() ]
+        for k, v in self.config_data[package_name].items():
+            tp = type(v)
+            attrs.append((k, tp, v))
+
+        return dataclasses.make_dataclass("PackageConfig", attrs)
