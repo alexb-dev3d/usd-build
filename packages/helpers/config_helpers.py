@@ -18,3 +18,21 @@ def read_json(file_path: PathLike) -> Dict:
         return json.loads(f.read(), cls=JSONWithCommentsDecoder)
     
     
+
+class ConfigHelper:
+    config_data: Dict
+
+    def __init__(self, config_path: PathLike):
+        self.config_data = read_json(config_path)
+    
+    def __config(self) -> Dict:
+        return self.config_data
+    
+    def packages(self) -> Dict:
+        return self.config_data.keys()
+    
+    def package_url(self, package_name: str) -> str:
+        return self.config_data[package_name]["url"]
+    
+    def package_version_tag(self, package_name: str) -> str:
+        return self.config_data[package_name]["version_tag"]

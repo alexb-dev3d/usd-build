@@ -1,67 +1,18 @@
 import os, sys
-from git import Repo
-import requests
-import zipfile
-import shutil
 import subprocess
 from typing import Dict
-from json_helper import read_json
-from logging_helper import setup_logger
-from os_helpers import set_directory
+from helpers.config_helpers import ConfigHelper
+from helpers.logging_helpers import setup_logger
+from helpers.os_helpers import set_directory
+from helpers.pull_helpers import pull_package, pull_zip
 
 DOWNLOAD_DIR=os.environ.get("DOWNLOAD_DIR","dependencies")
 BUILD_DIR=os.environ.get("BUILD_DIR","build")
 
 # logging.basicConfig(level=logging.INFO)
-#logger = logging.getLogger(__name__)
 logger = setup_logger(__name__)
 
-def pull_repo(repo_url: str, repo_name, version_tag):
-    logger.info(f"Pulling repository: {repo_url}")
-    dep_dir = os.path.join(os.path.abspath(os.curdir),DOWNLOAD_DIR)
-    os.makedirs(dep_dir,exist_ok=True)
-    repo_dir = os.path.join(dep_dir,repo_name)
-    repository = Repo.clone_from(repo_url,repo_dir)
-    logger.info(f"Checking out {version_tag}")
-    repository.checkout(version_tag)
-
-def pull_zip(zip_url: str, out_path: str, force_pull: bool = False, force_unzip: bool = False) -> bool:
-    try:
-        logger.info(f"Pulling repository: {zip_url}")
-        dep_dir = os.path.join(os.path.abspath(os.curdir),DOWNLOAD_DIR)
-        out_dir = os.path.join(dep_dir,out_path)
-        zip_name = out_dir+".zip"
-
-        pull = True
-        if os.path.exists(zip_name):
-            if not force_pull:
-                logger.warning("Archive file already exists, keeping it")
-                pull = False
-
-        if pull:
-            os.makedirs(dep_dir,exist_ok=True)
-            with open(zip_name,"wb") as zip_file:
-                content = requests.get(zip_url, stream=True).content
-                zip_file.write(content)
-
-        if os.path.exists(out_dir):
-            # you do not always to force the unzip if ever you have made tweaks to the original
-            if not force_unzip:
-                logger.warning(f"Destination folder {out_dir} exists and force unzip is False, keeping dest folder as is")
-                return True
-            logger.warning("Forcing removing of unzipped folder")
-            shutil.rmtree(out_dir)
-
-        logger.info("Unzipping file")
-        with zipfile.ZipFile(zip_name, 'r') as zip_ref:
-            zip_ref.extractall(dep_dir)
-
-
-    except Exception as e:
-        logger.exception(f"Ooups: {e}")
-        return False
-    return True
-
+    
 def run_build_script(out_path: str, config_data: Dict, install_dir: os.PathLike) -> None:
 
     logger.info("Starting build script")
@@ -96,7 +47,12 @@ if __name__=="__main__":
     config_file = sys.argv[1]
     install_dir = sys.argv[2]
 
-    config_data = read_json(config_file)
+    config_helper = ConfigHelper(config_file)
+
+    if not pull_package(config_helper, "usd"):
+        logger.error("Failed pulling dependencies")
+        exit(0)
+
     logger.info(f"Starting Usd Build for version {config_data['usd_version_tag']}")
     logger.info(f"Will install in: {install_dir}")
     version_tag = config_data["usd_version_tag"]

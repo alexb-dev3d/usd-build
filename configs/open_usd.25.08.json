@@ -1,34 +1,37 @@
 {
-    "usd_version_tag" : "25.05.01",
-    // "usd_url" : "https://github.com/PixarAnimationStudios/OpenUSD.git"
-    "usd_url" : "https://github.com/PixarAnimationStudios/OpenUSD/archive/refs/tags/v25.05.01.zip",
+    "usd" : {
+        "version" : "25.05.01",
+        "version_tag" : "25.05.01",
+        // "usd_url" : "https://github.com/PixarAnimationStudios/OpenUSD.git"
+        "url" : "https://github.com/PixarAnimationStudios/OpenUSD/archive/refs/tags/v25.05.01.zip",
 
-    "build_options" : [
-        "--tutorials",
-        "--build-shared",
-        "--examples",
-        "--tutorials",
-        "--tools",
-        "--python",
-        "--usdValidation",
-        "--usd-imaging",
-        // "--imaging"
-        "--openvdb",
-        "--usdview",
-        "--zlib",
+        "build_options" : [
+            "--tutorials",
+            "--build-shared",
+            "--examples",
+            "--tutorials",
+            "--tools",
+            "--python",
+            "--usdValidation",
+            "--usd-imaging",
+            // "--imaging"
+            "--openvdb",
+            "--usdview",
+            "--zlib",
 
-        // "--vulkan",
-        "--openimageio",
-        "--opencolorio",
-        "--alembic",
-        "--hdf5",
-        // "--draco"
+            // "--vulkan",
+            "--openimageio",
+            "--opencolorio",
+            "--alembic",
+            "--hdf5",
+            // "--draco"
 
-        "--materialx",
-        "--onetbb"        
-    ],
-    "build_args": {
-        "--build-variant": "relwithdebuginfo",
-        "--generator" : ""
+            "--materialx",
+            "--onetbb"        
+        ],
+        "build_args": {
+            "--build-variant": "relwithdebuginfo",
+            "--generator" : ""
+        }
     }
 }
