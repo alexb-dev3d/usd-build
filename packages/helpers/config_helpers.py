@@ -1,6 +1,5 @@
 import json
 import re
-import dataclasses
 from os import PathLike
 from typing import Dict
 
@@ -19,6 +18,8 @@ def read_json(file_path: PathLike) -> Dict:
         return json.loads(f.read(), cls=JSONWithCommentsDecoder)
     
     
+class PackageConfig:
+    pass
 
 class ConfigHelper:
     config_data: Dict
@@ -26,30 +27,14 @@ class ConfigHelper:
     def __init__(self, config_path: PathLike):
         self.config_data = read_json(config_path)
     
-    def __config(self) -> Dict:
-        return self.config_data
-    
     def packages(self) -> Dict:
         return self.config_data.keys()
     
-    def package_url(self, package_name: str) -> str:
-        return self.config_data[package_name]["url"]
-    
-    def package_version_tag(self, package_name: str) -> str:
-        return self.config_data[package_name]["version_tag"]
-
-    def package_name(self, package_name: str) -> str:
-        """
-        return the name if specified in the packagge config, otherwise return the package name as is
-        """
-        return self.config_data[package_name].get("name", package_name)
-    
     def package_class(self, package_name: str) -> str:
 
-        attrs = []
-        #[ (name, str, val) for name, val in self.config_data[package_name].items() ]
-        for k, v in self.config_data[package_name].items():
-            tp = type(v)
-            attrs.append((k, tp, v))
+        config = PackageConfig();
 
-        return dataclasses.make_dataclass("PackageConfig", attrs)
+        for k, v in self.config_data[package_name].items():
+            setattr(config, k, v)
+
+        return config

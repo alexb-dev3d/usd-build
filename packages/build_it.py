@@ -5,7 +5,7 @@ from typing import Dict
 from helpers.config_helpers import ConfigHelper
 from helpers.logging_helpers import setup_logger
 from helpers.os_helpers import set_directory
-from helpers.pull_helpers import pull_package, pull_zip
+import helpers.pull_helpers as p_helper
 
 DOWNLOAD_DIR=os.environ.get("DOWNLOAD_DIR","dependencies")
 BUILD_DIR=os.environ.get("BUILD_DIR","build")
@@ -51,26 +51,27 @@ def parse_arguments() ->Namespace:
     return parser.parse_args(sys.argv[1:])
 
 
-def pull_package(config, package_name, args):
-    logger.info(f"Pulling package: {package_name}")
+def pull_package(package_config, args):
+    package_name = package_config.name
+    logger.info(f"Pulling package: {package_config.name}")
     print("args", args)
     pull_dir = args.pull_dir
-    if not pull_package(config, package_name, pull_dir):
+    if not p_helper.pull_package(package_config, pull_dir):
         logger.error("Failed pulling dependencies")
         exit(0)
 
 
-    version_tag = config_data.package_version_tag(package_name)
-    logger.info(f"Starting Usd Build for version {version_tag}")
-    logger.info(f"Will install in: {install_dir}")
-    # pull_repo(config_data["usd_url"], f"OpenUsd{version_tag}", version_tag)
-    out_dir_name = f"OpenUsd-{version_tag}"
-    if not pull_zip(config_data["usd_url"], out_dir_name, force_unzip = False):
-        logger.error("Failed pulling dependencies")
-        exit(0)
+    # version_tag = package_config.version_tag
+    # logger.info(f"Starting Usd Build for version {version_tag}")
+    # logger.info(f"Will install in: {install_dir}")
+    # # pull_repo(config_data["usd_url"], f"OpenUsd{version_tag}", version_tag)
+    # out_dir_name = f"OpenUsd-{version_tag}"
+    # if not pull_zip(config_data["usd_url"], out_dir_name, force_unzip = False):
+    #     logger.error("Failed pulling dependencies")
+    #     exit(0)
 
-    install_dir = os.path.join(install_dir, out_dir_name)
-    run_build_script(out_dir_name, config_data, install_dir)
+    # install_dir = os.path.join(install_dir, out_dir_name)
+    # run_build_script(out_dir_name, config_data, install_dir)
 
 if __name__=="__main__":
     args = parse_arguments()
@@ -80,6 +81,5 @@ if __name__=="__main__":
     logger.info(f"Building packages {config.packages()}")
     for package in config.packages():
         package_config = config.package_class(package)
-        print( package_config)
-        pull_package(config, package, args)
+        pull_package(package_config, args)
 
